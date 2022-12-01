@@ -1,7 +1,7 @@
 """The implementation of a Hera workflow for Argo-based workflows"""
 import json
 from types import ModuleType
-from typing import Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Bool, Dict, List, Optional, Tuple, TypeVar, Union
 
 from argo_workflows.model_utils import model_to_dict
 from argo_workflows.models import (
@@ -126,6 +126,7 @@ class Workflow:
         generate_name: bool = False,
         active_deadline_seconds: Optional[int] = None,
         metrics: Optional[Union[Metric, List[Metric], Metrics]] = None,
+        archive_logs: Optional[Bool] = None
     ):
         self.name = validate_name(name)
         dag_name = self.name if dag_name is None else dag_name
@@ -153,6 +154,7 @@ class Workflow:
         self.exit_task: Optional[str] = None
         self.generated_name: Optional[str] = None
         self.metrics: Optional[Metrics] = None
+        self.archive_logs: archive_logs 
         if metrics:
             if isinstance(metrics, Metric):
                 self.metrics = Metrics([metrics])
@@ -269,6 +271,9 @@ class Workflow:
 
         if self.metrics is not None:
             setattr(spec, "metrics", self.metrics.build())
+
+        if self.archive_logs is not None:
+            setattr(sepc, "archive_logs", self.archive_logs)
 
         return spec
 
